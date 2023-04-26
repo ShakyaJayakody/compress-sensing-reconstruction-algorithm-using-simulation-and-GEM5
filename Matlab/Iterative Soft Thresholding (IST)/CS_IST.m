@@ -25,6 +25,15 @@ soft_thresh = @(x, T) sign(x) .* max(abs(x) - T, 0);
 
 % Run IST algorithm
 x_hat = y; % initial estimate
+% plot x and xhat
+figure;
+
+plot(x, 'b'); hold on;
+plot(x_hat, 'r--'); hold off;
+xlabel('Index'); ylabel('Value');
+legend('True signal', 'Recovered signal');
+title('IHT')
+
 for i = 1:max_iter
     x_hat_old = x_hat;
     x_hat = soft_thresh(x_hat + lambda * (y - x_hat), lambda);
