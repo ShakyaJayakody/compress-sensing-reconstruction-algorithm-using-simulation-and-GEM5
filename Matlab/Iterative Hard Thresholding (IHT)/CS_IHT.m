@@ -1,4 +1,3 @@
-% shakya_jayakody_hw4
 
 clc
 clear all
@@ -7,9 +6,11 @@ clear all
 
 % generate sparse signal x of length n = 1000 with 100 non-zero coefficients
 n = 1000;
+s = 100; % sparsity
+sigma = 1;
 x = zeros(n, 1);
-nz = randsample(n, 100); % randomly choose 100 indices
-x(nz) = randn(100, 1); % set non-zero coefficients to Gaussian noise
+nz = randperm(n, s); % randomly choose 100 indices
+x(nz) = sigma*randn(s, 1); % set non-zero coefficients to Gaussian noise
 
 % generate observation matrix A
 m = 500; % number of measurements
@@ -20,23 +21,24 @@ sigma = 0.1; % noise standard deviation
 b = A*x + sigma*randn(m, 1);
 
 % set IHT parameters
-lambda = 0.1; % regularization parameter
+lambda = -0.999992; % regularization parameter
 tol = 1e-6; % convergence tolerance
 maxit = 1000; % maximum number of iterations
 
 % run IHT algorithm
 xhat = iht(A, b, lambda, tol, maxit);
 
-% compute MSE, PSNR, SSIM between x and xhat
-mse = norm(x - xhat)^2/n;
-psnr = 20*log10(max(abs(x))/sqrt(mse));
+% Compute metrics to evaluate the quality of the recovered signal
+mse = immse(xhat, x);
+psnr = psnr(xhat, x);
 ssimval = ssim(x, xhat);
+sqs = round(10*log10(ssimval^2)); % subjective quality scale
 
 % display results
-fprintf('MSE: %.4f\n', mse);
-fprintf('PSNR: %.4f dB\n', psnr);
-fprintf('SSIM: %.4f\n', ssimval);
-
+fprintf('MSE: %f\n', mse);
+fprintf('PSNR: %f dB\n', psnr);
+fprintf('SSIM: %f\n', ssimval);
+fprintf('SQS = %d\n', sqs);
 % plot x and xhat
 figure;
 plot(x, 'b'); hold on;
