@@ -11,15 +11,23 @@ vector<double> iht(vector<vector<double>> A, vector<double> b, double lambda, in
     vector<double> x(n, 0);
     
     for(int i = 0; i < max_iters; i++) {
-        // Compute gradient
-        vector<double> grad(m, 0);
+            // Compute residual
+        vector<double> r(m, 0);
         for(int k = 0; k < m; k++) {
-            double dot = 0;
             for(int j = 0; j < n; j++) {
-                dot += A[k][j] * x[j];
+                r[k] += A[k][j] * x[j];
             }
-            grad[k] = b[k] - dot;
+            r[k] -= b[k];
         }
+        
+        // Compute gradient
+        vector<double> grad(n, 0);
+        for(int j = 0; j < n; j++) {
+            for(int k = 0; k < m; k++) {
+                grad[j] += A[k][j] * r[k];
+            }
+        }
+        
         // Apply hard thresholding
         for(int j = 0; j < n; j++) {
             if(abs(x[j] + grad[j] / lambda) <= 1 / lambda) {
